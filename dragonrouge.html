@@ -1,0 +1,2040 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Jeok-Ryong</title>
+  <style>
+    :root {
+      --rouge-feu: #ff3333;
+      --rouge-sang: #8b0000;
+      --rouge-fonce: #3a0000;
+      --rouge-clair: #ff6666;
+      --vert-ok: #00cc66;
+      --rouge-gris: #ff9999;
+      --sidebar-width: 240px;
+      --icon-size: 20px;
+      --gradient-start: #3a0000;
+      --gradient-end: #8b0000;
+      --accent-color: #ff3333;
+      --accent-hover: #ff5555;
+      --card-bg: rgba(58,0,0,0.85);
+      --card-border: #8b0000;
+      --text-primary: #ffe0e0;
+      --text-secondary: #aaa;
+      --shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      --shadow-hover: 0 12px 40px rgba(255, 51, 51, 0.4);
+      --transition-speed: 0.3s;
+    }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+      color: var(--text-primary);
+      margin: 0;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+    
+    /* Effet de lueur subtil sur le body */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(circle at 50% 0%, rgba(0, 102, 204, 0.15), transparent 50%);
+      pointer-events: none;
+      z-index: -1;
+    }
+    .sidebar {
+      width: var(--sidebar-width);
+      background: linear-gradient(180deg, var(--rouge-fonce), var(--rouge-sang));
+      position: fixed;
+      height: 100%;
+      overflow-y: auto;
+      box-shadow: 4px 0 25px rgba(255,51,51,0.4);
+      border-right: 2px solid var(--rouge-feu);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255,51,51,0.3);
+      background-attachment: fixed;
+    }
+    
+    /* Animation subtile pour le sidebar */
+    .sidebar::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, transparent, var(--rouge-feu), transparent);
+      opacity: 0.6;
+      animation: slideGlow 4s ease-in-out infinite;
+    }
+    
+    @keyframes slideGlow {
+      0%, 100% { transform: translateX(-100%); opacity: 0; }
+      50% { transform: translateX(100%); opacity: 1; }
+    }
+    .sidebar h2 {
+      padding: 20px;
+      margin: 0;
+      font-size: 1.6rem;
+      color: var(--rouge-feu);
+      text-align: center;
+      border-bottom: 1px solid var(--rouge-sang);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      background: rgba(255,51,51,0.1);
+      box-shadow: inset 0 -1px 0 rgba(255,51,51,0.3);
+    }
+    .sidebar h2 .app-icon {
+      font-size: 1.8rem;
+    }
+    .sidebar ul {
+      list-style: none;
+      padding: 0;
+      margin: 20px 0 0;
+    }
+    .sidebar li {
+      padding: 16px 25px;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-left: 3px solid transparent;
+    }
+    .sidebar li .nav-icon {
+      font-size: var(--icon-size);
+      width: var(--icon-size);
+      text-align: center;
+    }
+    .sidebar li:hover, .sidebar li.active {
+      background: var(--rouge-sang);
+      color: white;
+      border-left: 5px solid var(--rouge-feu);
+    }
+    .sidebar li.active .nav-icon {
+      filter: brightness(1.2);
+    }
+    .main-content {
+      margin-left: var(--sidebar-width);
+      padding: 30px;
+    }
+    .card {
+      background: linear-gradient(145deg, rgba(58,0,0,0.9), rgba(139,0,0,0.85));
+      border: 1px solid var(--rouge-sang);
+      border-radius: 12px;
+      padding: 25px;
+      margin-bottom: 30px;
+      position: relative;
+      box-shadow: var(--shadow);
+      transition: transform 0.2s, box-shadow 0.2s;
+      backdrop-filter: blur(5px);
+      animation: cardEntrance 0.6s ease-out;
+    }
+    
+    @keyframes cardEntrance {
+      from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.98);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-hover);
+    }
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(255,102,102,0.2);
+      background: rgba(255,51,51,0.08);
+      border-radius: 8px;
+      padding: 10px 12px;
+      position: relative;
+      cursor: pointer;
+    }
+    .card-header:hover {
+      background: rgba(255,51,51,0.12);
+    }
+    .card-header .toggle-icon {
+      margin-left: auto;
+      font-size: 1.2rem;
+      color: var(--rouge-clair);
+      transition: transform 0.3s;
+    }
+    .card-header.collapsed .toggle-icon {
+      transform: rotate(-90deg);
+    }
+    .card-content {
+      max-height: 1000px;
+      overflow: hidden;
+      transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+      opacity: 1;
+    }
+    .card-content.collapsed {
+      max-height: 0;
+      opacity: 0;
+    }
+    .card-header::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: -1px;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, var(--rouge-feu), var(--rouge-clair));
+      opacity: 0.6;
+    }
+    .card-header .section-icon {
+      font-size: 1.4rem;
+      color: var(--rouge-feu);
+      background: rgba(255,51,51,0.15);
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,51,51,0.4);
+      box-shadow: 0 2px 8px rgba(255, 51, 51, 0.2);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .card-header .section-icon:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(255, 51, 51, 0.35);
+    }
+    h2, h3 { color: var(--rouge-feu); }
+    h2 { display: flex; align-items: center; gap: 12px; }
+    h2 .title-icon { font-size: 1.2rem; }
+    input, select, button, textarea {
+      padding: 12px;
+      border: 1px solid var(--rouge-sang);
+      border-radius: 6px;
+      background: #3a0000;
+      color: #eee;
+    }
+    button {
+      background: linear-gradient(135deg, var(--rouge-feu), #b30000);
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+      border-radius: 6px;
+      transition: all 0.2s;
+      box-shadow: 0 4px 12px rgba(255, 51, 51, 0.3);
+    }
+    button:hover { 
+      background: linear-gradient(135deg, #cc0000, #8b0000);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(255, 51, 51, 0.4);
+    }
+    button:active { transform: translateY(0); }
+    button.refuser { 
+      background: linear-gradient(135deg, var(--rouge-sang), #6a0000);
+      box-shadow: 0 4px 12px rgba(139,0,0,0.3);
+    }
+    button.refuser:hover { 
+      background: linear-gradient(135deg, #8b0000, #6a0000);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(139,0,0,0.4);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th {
+      background: var(--rouge-sang);
+      padding: 12px;
+      text-align: left;
+    }
+    td {
+      padding: 12px;
+      border-bottom: 1px solid #333;
+    }
+    .delete {
+      color: var(--accent-color);
+      cursor: pointer;
+      font-size: 1.8rem;
+      text-align: center;
+      font-weight: bold;
+      transition: all 0.2s;
+      border-radius: 50%;
+      width: 28px;
+      height: 28px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 51, 51, 0.1);
+      border: 1px solid rgba(255, 51, 51, 0.3);
+      box-shadow: 0 2px 6px rgba(255, 51, 51, 0.2);
+    }
+    .delete:hover {
+      background: rgba(255, 51, 51, 0.2);
+      color: var(--accent-hover);
+      transform: scale(1.1);
+      box-shadow: 0 4px 12px rgba(255, 51, 51, 0.35);
+    }
+    .positive { color: #00ff88; font-weight: bold; }
+    .negative { color: var(--rouge-clair); font-weight: bold; }
+    .paiement-ok { color: var(--vert-ok); font-weight: bold; cursor: pointer; }
+    .paiement-attente { color: var(--rouge-clair); font-weight: bold; cursor: pointer; }
+    .paiement-non { color: var(--rouge-clair); font-weight: bold; cursor: pointer; }
+    #loginScreen {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.9);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      z-index: 9999;
+    }
+    .hidden { display: none !important; }
+    #commentModal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      padding: 16px;
+    }
+    .comment-modal-panel {
+      width: min(560px, 100%);
+      background: linear-gradient(145deg, rgba(58,0,0,0.98), rgba(139,0,0,0.92));
+      border: 1px solid var(--rouge-sang);
+      border-radius: 12px;
+      box-shadow: var(--shadow-hover);
+      padding: 18px;
+    }
+    .comment-modal-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .comment-modal-grid textarea {
+      grid-column: 1 / -1;
+      min-height: 120px;
+      resize: vertical;
+    }
+    .comment-modal-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 14px;
+    }
+    #commentModalError {
+      color: var(--rouge-clair);
+      min-height: 20px;
+      margin-top: 8px;
+      font-size: 0.95rem;
+    }
+    #appModal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10001;
+      padding: 16px;
+    }
+    .app-modal-panel {
+      width: min(560px, 100%);
+      background: linear-gradient(145deg, rgba(58,0,0,0.98), rgba(139,0,0,0.92));
+      border: 1px solid var(--rouge-sang);
+      border-radius: 12px;
+      box-shadow: var(--shadow-hover);
+      padding: 18px;
+    }
+    .app-modal-fields {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    #appModalError {
+      color: var(--rouge-clair);
+      min-height: 20px;
+      margin-top: 8px;
+      font-size: 0.95rem;
+    }
+    .note-item {
+      background: linear-gradient(145deg, rgba(58,0,0,0.95), rgba(139,0,0,0.9));
+      border: 1px solid var(--rouge-sang);
+      border-radius: 12px;
+      padding: 18px;
+      margin-bottom: 18px;
+      box-shadow: var(--shadow);
+      transition: transform 0.2s, box-shadow 0.2s;
+      position: relative;
+      overflow: hidden;
+      animation: noteEntrance 0.4s ease-out;
+    }
+    
+    @keyframes noteEntrance {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .note-item::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--rouge-feu), var(--rouge-clair));
+      opacity: 0.6;
+    }
+    .note-item:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-hover);
+    }
+    .note-images {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+    .note-images img {
+      max-width: 210px;
+      max-height: 210px;
+      border: 2px solid var(--rouge-sang);
+      border-radius: 8px;
+      object-fit: cover;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+    .note-images img:hover {
+      transform: scale(1.05);
+      box-shadow: 0 8px 20px rgba(255, 51, 51, 0.4);
+    }
+    #cleanAllBtn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: linear-gradient(135deg, var(--rouge-sang), #6a0000);
+      color: white;
+      padding: 12px 24px;
+      border-radius: 8px;
+      border: 2px solid var(--rouge-feu);
+      z-index: 1000;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 1.1rem;
+      display: none;
+      box-shadow: 0 4px 12px rgba(139,0,0,0.4);
+      transition: all 0.2s;
+    }
+    #cleanAllBtn:hover {
+      background: linear-gradient(135deg, #8b0000, #6a0000);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(139,0,0,0.5);
+    }
+    #cleanAllBtn:active {
+      transform: translateY(0);
+    }
+
+    /* Statuts commandes */
+    .statut-preparation { color: var(--rouge-clair); font-weight: bold; }
+    .statut-encours     { color: var(--rouge-gris); font-weight: bold; }
+    .statut-faite       { color: var(--vert-ok); font-weight: bold; }
+    select.statut-select {
+      background: #222;
+      color: white;
+      border: 1px solid #555;
+      padding: 4px 8px;
+      font-size: 0.9rem;
+      border-radius: 4px;
+    }
+
+    /* Pris en charge par */
+    .responsable-cell {
+      cursor: pointer;
+      text-decoration: underline dotted;
+      color: var(--rouge-clair);
+    }
+    .responsable-cell:hover {
+      color: var(--rouge-clair);
+    }
+    .responsable-none {
+      color: var(--rouge-clair);
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+
+<div id="loginScreen">
+  <h2 style="color: var(--rouge-feu);">Jeok-Ryong</h2>
+
+  <input id="clientPass" type="password" placeholder="Mot de passe client" style="width:340px;font-size:1.2rem;">
+  <button id="btnClient" style="font-size:1.3rem;padding:16px 60px; background:#555;">Accès Client</button>
+
+  <div style="color:#aaa;margin:20px 0;">— ou —</div>
+
+  <input id="membrePass" type="password" placeholder="Mot de passe membre" style="width:340px;font-size:1.2rem;">
+  <button id="btnMembre" style="font-size:1.4rem;padding:20px 70px;">Accès Membres</button>
+
+  <div style="color:#aaa;margin:25px 0;">— ou —</div>
+
+  <input id="adminPass" type="password" placeholder="Mot de passe responsable" style="width:340px;font-size:1.2rem;">
+  <button id="btnAdmin" style="font-size:1.4rem;padding:20px 70px;">Accès Responsable</button>
+
+  <p id="loginError" style="color:#ff4444; min-height:24px; margin-top:15px;"></p>
+</div>
+
+<div class="sidebar hidden" id="sidebar">
+  <h2>Jeok-Ryong</h2>
+  <ul id="menu"></ul>
+</div>
+
+<div class="main-content hidden" id="mainContent">
+  <div id="dashboard" class="card" style="display:none;">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="section-icon">📊</span>
+      <h2 class="title-icon">Solde Global</h2>
+      <span class="toggle-icon">▼</span>
+    </div>
+    <div class="card-content">
+      <div id="soldeGlobal" style="font-size:3.8rem;font-weight:bold;text-align:center;color:var(--rouge-feu);">0,00 €</div>
+      <h3>Résumé ce mois</h3>
+      <p>Revenus : <span id="revenus" class="positive">0 €</span></p>
+      <p>Dépenses : <span id="depenses" class="negative">0 €</span></p>
+    </div>
+  </div>
+
+  <div id="operations" class="card" style="display:none;">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="section-icon">💰</span>
+      <h2 class="title-icon">Opérations validées</h2>
+      <span class="toggle-icon">▼</span>
+    </div>
+    <div class="card-content">
+      <table><thead><tr><th>Date</th><th>Qui</th><th>Description</th><th>Montant</th><th>Type</th><th class="delete">×</th></tr></thead><tbody id="listeOps"></tbody></table>
+    </div>
+  </div>
+
+  <div id="demandes" class="card" style="display:none;">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="section-icon">⏳</span>
+      <h2 class="title-icon">Demandes en attente</h2>
+      <span class="toggle-icon">▼</span>
+    </div>
+    <div class="card-content">
+      <table><thead><tr><th>Date</th><th>Prénom</th><th>Montant</th><th>Type</th><th>Description</th><th>Actions</th></tr></thead><tbody id="listeDemandes"></tbody></table>
+    </div>
+  </div>
+
+  <div id="declarer" class="card" style="display:none;">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="section-icon">📝</span>
+      <h2 class="title-icon">Déclarer une opération</h2>
+      <span class="toggle-icon">▼</span>
+    </div>
+    <div class="card-content">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:15px;">
+        <input id="prenomDecl" placeholder="Prénom / pseudo" required>
+        <input type="number" id="montantDecl" placeholder="Montant €" step="0.01" min="0.01" required>
+        <select id="typeDecl" required><option value="">— Type —</option><option value="revenus">Revenu (+)</option><option value="depense">Dépense (-)</option></select>
+        <input id="descriptionDecl" placeholder="Description" required>
+        <button onclick="envoyerOperation()">Envoyer</button>
+      </div>
+      <p id="noteAdmin" style="color:#00cc66;margin-top:15px;display:none;">Mode Responsable → ajout direct</p>
+    </div>
+  </div>
+
+  <div id="blocknote" class="card" style="display:none;">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="section-icon">📝</span>
+      <h2 class="title-icon">Bloc-Notes</h2>
+      <span class="toggle-icon">▼</span>
+    </div>
+    <div class="card-content">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:15px;">
+        <textarea id="texteBlockNote" placeholder="Écris ton message ici..." rows="4"></textarea>
+        <input type="url" id="urlImageBlockNote" placeholder="Colle un lien URL d'image (ex: https://...jpg)" />
+        <input type="file" id="photosBlockNote" multiple accept="image/*">
+        <button onclick="ajouterBlockNote()">Publier le message</button>
+      </div>
+      <h3 style="margin-top:30px;">Messages publiés</h3>
+      <div id="listeBlockNotes"></div>
+    </div>
+  </div>
+
+  <div id="commandes" class="card" style="display:none;">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="section-icon">🛒</span>
+      <h2 class="title-icon">Commandes</h2>
+      <span class="toggle-icon">▼</span>
+    </div>
+    <div class="card-content">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:15px;">
+        <select id="objetCommande" required onchange="majChampsObjet()">
+          <option value="">— Choisir l'objet —</option>
+          <option value="Objets">Objets</option>
+        </select>
+        <div id="champObjetSpecifique" style="display:none;">
+          <select id="objetSpecifique" required>
+            <option value="">— Choisir l'objet —</option>
+          </select>
+        </div>
+        <input id="pourQuiCommande" placeholder="Pour qui ? (nom / groupe / personne)" type="text">
+        <input type="number" id="quantiteCommande" placeholder="Quantité" min="1" step="1" required onchange="calculerMontant()">
+        <input type="number" id="prixUnitaireCommande" placeholder="Prix unitaire €" step="0.01" min="0.01" required onchange="calculerMontant()" style="display:none;">
+        <input type="number" id="montantCommande" placeholder="Montant total €" step="0.01" required readonly>
+        <button onclick="creerCommande()">Créer la commande</button>
+      </div>
+      <div id="suiviCommandeBox" style="display:none; margin-top:18px;">
+        <h3>Suivre une commande</h3>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;">
+          <input id="suiviCommandeInput" placeholder="Numéro de suivi (ex: 145856)" inputmode="numeric" maxlength="6">
+          <button onclick="rechercherCommandeSuivi()">Suivre avec ce numéro</button>
+          <button onclick="effacerSuiviCommande()" class="refuser">Réinitialiser suivi</button>
+        </div>
+        <p id="suiviCommandeInfo" style="margin-top:10px;color:var(--rouge-clair);"></p>
+      </div>
+      <h3 style="margin-top:30px;">Liste des commandes</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Suivi</th>
+            <th>Objet</th>
+            <th>Pour qui ?</th>
+            <th>Qté</th>
+            <th>Montant</th>
+            <th>Statut</th>
+            <th>Pris en charge par</th>
+            <th class="delete">×</th>
+          </tr>
+        </thead>
+        <tbody id="listeCommandes"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="produits" class="card" style="display:none;">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="section-icon">📦</span>
+      <h2 class="title-icon">Gestion des Produits</h2>
+      <span class="toggle-icon">▼</span>
+    </div>
+    <div class="card-content">
+      <div class="admin-only">
+        <h3>Ajouter un produit</h3>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:15px;">
+          <input id="nomProduit" placeholder="Nom du produit" required>
+          <input type="number" id="prixProduit" placeholder="Prix unitaire €" step="0.01" min="0.01" required>
+          <button onclick="ajouterProduit()">Ajouter le produit</button>
+        </div>
+      </div>
+      <h3 style="margin-top:30px;">Liste des produits</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Nom</th>
+            <th>Prix unitaire</th>
+            <th class="delete">×</th>
+          </tr>
+        </thead>
+        <tbody id="listeProduits"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="groupes" class="card" style="display:none;">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="section-icon">👥</span>
+      <h2 class="title-icon">Groupes & Membres</h2>
+      <span class="toggle-icon">▼</span>
+    </div>
+    <div class="card-content">
+      <div class="admin-only">
+        <h3>Créer un groupe</h3>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;">
+          <input id="nomGroupe" placeholder="Nom du groupe" required>
+          <button onclick="creerGroupe()">Créer</button>
+        </div>
+      </div>
+      <h3 style="margin-top:20px;">Liste des groupe</h3>
+      <select id="selectGroupeFiltre" onchange="afficherMembres()" style="width:100%;margin:10px 0 20px;">
+        <option value="">— Tous les groupes —</option>
+      </select>
+      <table>
+        <thead><tr><th>Nom</th><th>Tél</th><th>Commentaire</th><th>Groupe</th><th>Paiement</th><th class="delete">×</th></tr></thead>
+        <tbody id="tableMembres"></tbody>
+      </table>
+      <div class="admin-only" style="margin-top:30px;">
+        <h3>Ajouter un membre</h3>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;">
+          <input id="nomMembre" placeholder="Nom complet" required>
+          <input id="telMembre" placeholder="Téléphone">
+          <input id="commentMembre" placeholder="Commentaire">
+          <select id="groupeMembre" required><option value="">— Groupe —</option></select>
+          <button onclick="ajouterMembre()">Ajouter</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="vehicules" class="card" style="display:none;">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="section-icon">🚗</span>
+      <h2 class="title-icon">Gestion des Véhicules</h2>
+      <span class="toggle-icon">▼</span>
+    </div>
+    <div class="card-content">
+      <div class="admin-only">
+        <h3>Ajouter un véhicule</h3>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:15px;">
+          <input id="immatriculationVehicule" placeholder="Immatriculation" required>
+          <input id="marqueVehicule" placeholder="Marque" required>
+          <input id="modeleVehicule" placeholder="Modèle" required>
+          <input id="couleurVehicule" placeholder="Couleur" required>
+          <select id="dispoVehicule" required>
+            <option value="disponible">Disponible</option>
+            <option value="indisponible">Indisponible</option>
+            <option value="maintenance">En maintenance</option>
+          </select>
+          <button onclick="ajouterVehicule()">Ajouter le véhicule</button>
+        </div>
+      </div>
+      <h3 style="margin-top:30px;">Liste des véhicules</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Immatriculation</th>
+            <th>Marque</th>
+            <th>Modèle</th>
+            <th>Couleur</th>
+            <th>Disponibilité</th>
+            <th class="delete">×</th>
+          </tr>
+        </thead>
+        <tbody id="listeVehicules"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<button id="cleanAllBtn">⚠ Nettoyer TOUT (admin only)</button>
+
+<div id="commentModal" class="hidden">
+  <div class="comment-modal-panel">
+    <h3 style="margin:0;">Répondre à une note</h3>
+    <div class="comment-modal-grid">
+      <input id="commentPrenom" placeholder="Prénom" maxlength="50">
+      <input id="commentNom" placeholder="Nom" maxlength="50">
+      <textarea id="commentReponse" placeholder="Votre réponse..." maxlength="1000"></textarea>
+    </div>
+    <p id="commentModalError"></p>
+    <div class="comment-modal-actions">
+      <button id="commentModalCancel" class="refuser" type="button">Annuler</button>
+      <button id="commentModalSubmit" type="button">Envoyer la réponse</button>
+    </div>
+  </div>
+</div>
+
+<div id="appModal" class="hidden">
+  <div class="app-modal-panel">
+    <h3 id="appModalTitle" style="margin:0;"></h3>
+    <p id="appModalMessage" style="margin:10px 0 0;"></p>
+    <div id="appModalFields" class="app-modal-fields"></div>
+    <p id="appModalError"></p>
+    <div class="comment-modal-actions">
+      <button id="appModalCancel" class="refuser" type="button">Annuler</button>
+      <button id="appModalConfirm" type="button">Confirmer</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ────────────────────────────────────────────── CONFIG
+const ADMIN_PASSWORD  = "ventoline";
+const MEMBRE_PASSWORD = "LienNoir";
+const CLIENT_PASSWORD = "client2026";   // ← change ici si tu veux un autre mot de passe
+
+const API_BASE = '/api/dragonrouge';
+
+let ops = [];
+let demandes = [];
+let groupes = [];
+let membres = [];
+let blockNotes = [];
+let commandes = [];
+let produitsDynamiques = [];
+let vehicules = [];
+let currentAccess = null;
+let dataLoaded = false;
+let currentClientTrackingCode = localStorage.getItem('drClientTrackingCodeV1') || '';
+let commentModalNoteId = null;
+let appModalResolver = null;
+let appModalFields = [];
+let dragonRougePollTimer = null;
+let lastServerDataHash = '';
+
+function formatEuro(m) { return Number(m).toLocaleString('fr-FR',{minimumFractionDigits:2}) + " €"; }
+
+function buildComparablePayload(source) {
+  const s = source && typeof source === 'object' ? source : {};
+  return {
+    ops: Array.isArray(s.ops) ? s.ops : [],
+    demandes: Array.isArray(s.demandes) ? s.demandes : [],
+    groupes: Array.isArray(s.groupes) ? s.groupes : [],
+    membres: Array.isArray(s.membres) ? s.membres : [],
+    blockNotes: Array.isArray(s.blockNotes) ? s.blockNotes : [],
+    commandes: Array.isArray(s.commandes) ? s.commandes : [],
+    produits: Array.isArray(s.produits) ? s.produits : [],
+    vehicules: Array.isArray(s.vehicules) ? s.vehicules : []
+  };
+}
+
+function hashDataPayload(source) {
+  return JSON.stringify(buildComparablePayload(source));
+}
+
+function closeAppModal(result) {
+  document.getElementById('appModal').classList.add('hidden');
+  document.getElementById('appModalError').textContent = '';
+  document.getElementById('appModalFields').innerHTML = '';
+  appModalFields = [];
+  if (appModalResolver) {
+    const resolve = appModalResolver;
+    appModalResolver = null;
+    resolve(result);
+  }
+}
+
+function openAppModal(options = {}) {
+  const {
+    title = 'Information',
+    message = '',
+    confirmText = 'Confirmer',
+    cancelText = 'Annuler',
+    showCancel = true,
+    fields = []
+  } = options;
+
+  return new Promise((resolve) => {
+    appModalResolver = resolve;
+    appModalFields = fields;
+
+    document.getElementById('appModalTitle').textContent = title;
+    document.getElementById('appModalMessage').textContent = message;
+    document.getElementById('appModalError').textContent = '';
+    document.getElementById('appModalConfirm').textContent = confirmText;
+    const cancelBtn = document.getElementById('appModalCancel');
+    cancelBtn.textContent = cancelText;
+    cancelBtn.style.display = showCancel ? 'inline-block' : 'none';
+
+    const fieldsContainer = document.getElementById('appModalFields');
+    fieldsContainer.innerHTML = '';
+    fields.forEach((field) => {
+      const input = document.createElement('input');
+      input.id = `appModalField_${field.id}`;
+      input.placeholder = field.placeholder || '';
+      input.maxLength = field.maxLength || 200;
+      input.value = field.value || '';
+      fieldsContainer.appendChild(input);
+    });
+
+    document.getElementById('appModal').classList.remove('hidden');
+    const firstField = fields.length ? document.getElementById(`appModalField_${fields[0].id}`) : document.getElementById('appModalConfirm');
+    if (firstField) firstField.focus();
+  });
+}
+
+async function appAlert(message, title = 'Information') {
+  await openAppModal({
+    title,
+    message,
+    confirmText: 'OK',
+    showCancel: false
+  });
+}
+
+async function appConfirm(message, title = 'Confirmation') {
+  const result = await openAppModal({
+    title,
+    message,
+    confirmText: 'Confirmer',
+    cancelText: 'Annuler',
+    showCancel: true
+  });
+  return !!(result && result.confirmed);
+}
+
+async function appPrompt(message, title = 'Saisie', placeholder = '') {
+  const result = await openAppModal({
+    title,
+    message,
+    confirmText: 'Valider',
+    cancelText: 'Annuler',
+    showCancel: true,
+    fields: [{ id: 'value', placeholder, required: true }]
+  });
+  if (!result || !result.confirmed) return null;
+  return (result.values.value || '').trim();
+}
+
+function normalizeRuntimeData() {
+  blockNotes = (blockNotes || []).map(n => ({
+    ...n,
+    commentaires: Array.isArray(n.commentaires) ? n.commentaires : []
+  }));
+  commandes = (commandes || []).map(c => ({
+    ...c,
+    statut: c.statut || "préparation",
+    responsable: c.responsable || ""
+  }));
+}
+
+function getDbPayload() {
+  return {
+    ops,
+    demandes,
+    groupes,
+    membres,
+    blockNotes,
+    commandes,
+    produits: produitsDynamiques,
+    vehicules
+  };
+}
+
+function setDataFromPayload(data) {
+  const source = data && typeof data === 'object' ? data : {};
+  ops = Array.isArray(source.ops) ? source.ops : [];
+  demandes = Array.isArray(source.demandes) ? source.demandes : [];
+  groupes = Array.isArray(source.groupes) ? source.groupes : [];
+  membres = Array.isArray(source.membres) ? source.membres : [];
+  blockNotes = Array.isArray(source.blockNotes) ? source.blockNotes : [];
+  commandes = Array.isArray(source.commandes) ? source.commandes : [];
+  produitsDynamiques = Array.isArray(source.produits) ? source.produits : [];
+  vehicules = Array.isArray(source.vehicules) ? source.vehicules : [];
+  normalizeRuntimeData();
+}
+
+function loadLocalBackup() {
+  ops = JSON.parse(localStorage.getItem('drOpsV8')) || [];
+  demandes = JSON.parse(localStorage.getItem('drDemandesV2')) || [];
+  groupes = JSON.parse(localStorage.getItem('drGroupesV2')) || [];
+  membres = JSON.parse(localStorage.getItem('drMembresV2')) || [];
+  blockNotes = JSON.parse(localStorage.getItem('drBlockNotesV1')) || [];
+  commandes = JSON.parse(localStorage.getItem('drCommandesV1')) || [];
+  produitsDynamiques = JSON.parse(localStorage.getItem('drProduitsDynamiquesV1')) || [];
+  vehicules = JSON.parse(localStorage.getItem('drVehiculesV1')) || [];
+  normalizeRuntimeData();
+}
+
+async function apiRequest(path, options = {}) {
+  const response = await fetch(`${API_BASE}${path}`, {
+    headers: { 'Content-Type': 'application/json' },
+    ...options
+  });
+  if (!response.ok) {
+    throw new Error(`API ${path} -> ${response.status}`);
+  }
+  return response.json();
+}
+
+async function loadAll() {
+  try {
+    const data = await apiRequest('/data');
+    setDataFromPayload(data);
+    lastServerDataHash = hashDataPayload(data);
+  } catch (error) {
+    console.warn('Chargement API impossible, backup local utilisé:', error.message);
+    loadLocalBackup();
+    lastServerDataHash = hashDataPayload(getDbPayload());
+  } finally {
+    dataLoaded = true;
+  }
+}
+
+function saveAll() {
+  if (!dataLoaded) return;
+  normalizeRuntimeData();
+  localStorage.setItem('drOpsV8', JSON.stringify(ops));
+  localStorage.setItem('drDemandesV2', JSON.stringify(demandes));
+  localStorage.setItem('drGroupesV2', JSON.stringify(groupes));
+  localStorage.setItem('drMembresV2', JSON.stringify(membres));
+  localStorage.setItem('drBlockNotesV1', JSON.stringify(blockNotes));
+  localStorage.setItem('drCommandesV1', JSON.stringify(commandes));
+  localStorage.setItem('drProduitsDynamiquesV1', JSON.stringify(produitsDynamiques));
+  localStorage.setItem('drVehiculesV1', JSON.stringify(vehicules));
+  const payload = getDbPayload();
+  lastServerDataHash = hashDataPayload(payload);
+  void apiRequest('/data', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  }).catch((error) => {
+    console.warn('Sauvegarde API impossible, backup local conservé:', error.message);
+  });
+}
+
+function isAdmin()  { return currentAccess === 'admin';  }
+function isMembre() { return currentAccess === 'membre'; }
+function isClient() { return currentAccess === 'client'; }
+
+function refreshAllViews() {
+  majSelectGroupes();
+  if (isAdmin()) {
+    afficherOps();
+    afficherDemandes();
+    calculerSolde();
+  } else if (isMembre()) {
+    afficherOps();
+    calculerSolde();
+  }
+  afficherMembres();
+  afficherBlockNotes();
+  afficherCommandes();
+  afficherProduits();
+  afficherVehicules();
+}
+
+function stopDragonRougePolling() {
+  if (dragonRougePollTimer) {
+    clearInterval(dragonRougePollTimer);
+    dragonRougePollTimer = null;
+  }
+}
+
+function startDragonRougePolling() {
+  stopDragonRougePolling();
+  dragonRougePollTimer = setInterval(async () => {
+    try {
+      const serverData = await apiRequest('/data');
+      const nextHash = hashDataPayload(serverData);
+      if (nextHash === lastServerDataHash) return;
+      setDataFromPayload(serverData);
+      lastServerDataHash = nextHash;
+      refreshAllViews();
+    } catch (error) {
+      console.warn('Polling dragonrouge indisponible:', error.message);
+    }
+  }, 1000);
+}
+
+async function loginWithAccess(level) {
+  currentAccess = level;
+  await loadAll();
+  demarrerApp();
+}
+
+// ────────────────────────────────────────────── LOGIN
+document.getElementById('btnClient').onclick = async () => {
+  const saisie = document.getElementById('clientPass').value;
+  if (saisie === CLIENT_PASSWORD) {
+    await loginWithAccess('client');
+  } else {
+    document.getElementById('loginError').textContent = "Mot de passe client incorrect";
+  }
+};
+
+document.getElementById('btnMembre').onclick = async () => {
+  const saisie = document.getElementById('membrePass').value;
+  if (saisie === MEMBRE_PASSWORD) {
+    await loginWithAccess('membre');
+  } else {
+    document.getElementById('loginError').textContent = "Mot de passe membre incorrect";
+  }
+};
+
+document.getElementById('btnAdmin').onclick = async () => {
+  const saisie = document.getElementById('adminPass').value;
+  if (saisie === ADMIN_PASSWORD) {
+    await loginWithAccess('admin');
+  } else {
+    document.getElementById('loginError').textContent = "Mot de passe responsable incorrect";
+  }
+};
+
+// ────────────────────────────────────────────── DÉMARRAGE
+function demarrerApp() {
+  document.getElementById('loginScreen').classList.add('hidden');
+  document.getElementById('sidebar').classList.remove('hidden');
+  document.getElementById('mainContent').classList.remove('hidden');
+  document.getElementById('cleanAllBtn').style.display = isAdmin() ? 'block' : 'none';
+
+  const menu = document.getElementById('menu');
+  if (isClient()) {
+    menu.innerHTML = `
+      <li class="active" onclick="showSection('commandes')">Mes commandes</li>
+      <li onclick="logout()" style="margin-top:60px;color:#ff6666;">Déconnexion</li>
+    `;
+  } else if (isMembre()) {
+    menu.innerHTML = `
+      <li class="active" onclick="showSection('dashboard')">Dashboard</li>
+      <li onclick="showSection('operations')">Opérations</li>
+      <li onclick="showSection('groupes')">Groupes & Membres</li>
+      <li onclick="showSection('declarer')">Déclarer opération</li>
+      <li onclick="showSection('blocknote')">Bloc-Notes</li>
+      <li onclick="showSection('commandes')">Commandes</li>
+      <li onclick="showSection('vehicules')">Véhicules</li>
+      <li onclick="logout()" style="margin-top:60px;color:#ff6666;">Déconnexion</li>
+    `;
+  } else { // admin
+    menu.innerHTML = `
+      <li class="active" onclick="showSection('dashboard')">Dashboard</li>
+      <li onclick="showSection('operations')">Opérations</li>
+      <li onclick="showSection('demandes')">Demandes</li>
+      <li onclick="showSection('declarer')">Déclarer</li>
+      <li onclick="showSection('blocknote')">Bloc-Notes</li>
+      <li onclick="showSection('produits')">Produits</li>
+      <li onclick="showSection('commandes')">Commandes</li>
+      <li onclick="showSection('groupes')">Groupes & Membres</li>
+      <li onclick="showSection('vehicules')">Véhicules</li>
+      <li onclick="logout()" style="margin-top:40px;color:#ff6666;">Déconnexion</li>
+    `;
+  }
+
+  document.querySelectorAll('.admin-only').forEach(el => el.style.display = isAdmin() ? 'block' : 'none');
+  document.querySelectorAll('th.delete, td.delete').forEach(el => el.style.display = isAdmin() ? 'table-cell' : 'none');
+  document.getElementById('noteAdmin').style.display = isAdmin() ? 'block' : 'none';
+  document.getElementById('suiviCommandeBox').style.display = isClient() ? 'block' : 'none';
+  if (isClient()) {
+    document.getElementById('suiviCommandeInput').value = currentClientTrackingCode || '';
+  }
+
+  majSelectGroupes();
+  showSection(isClient() ? 'commandes' : (isAdmin() ? 'dashboard' : 'groupes'));
+  refreshAllViews();
+  startDragonRougePolling();
+}
+
+// Nettoyage total (admin only)
+document.getElementById('cleanAllBtn').onclick = async () => {
+  if (!isAdmin()) return;
+  const step1 = await appConfirm("VRAIMENT tout effacer ?\nTout sera perdu définitivement !");
+  if (!step1) return;
+  const step2 = await appConfirm("Dernière chance – confirmer la suppression totale ?");
+  if (!step2) return;
+  ops = [];
+  demandes = [];
+  groupes = [];
+  membres = [];
+  blockNotes = [];
+  commandes = [];
+  produitsDynamiques = [];
+  vehicules = [];
+  try {
+    await apiRequest('/data', {
+      method: 'POST',
+      body: JSON.stringify(getDbPayload())
+    });
+  } catch (error) {
+    console.warn('Nettoyage API impossible:', error.message);
+  }
+  localStorage.clear();
+  location.reload();
+};
+
+// ────────────────────────────────────────────── NAVIGATION
+function showSection(id) {
+  document.querySelectorAll('#mainContent > div').forEach(s => s.style.display = 'none');
+  document.getElementById(id).style.display = 'block';
+  document.querySelectorAll('#menu li').forEach(li => li.classList.remove('active'));
+  const li = document.querySelector(`#menu li[onclick="showSection('${id}')"]`);
+  if (li) li.classList.add('active');
+  if (['groupes','declarer'].includes(id)) majSelectGroupes();
+  if (id === 'blocknote') afficherBlockNotes();
+  if (id === 'commandes') afficherCommandes();
+  if (id === 'demandes') afficherDemandes();
+}
+
+function logout() {
+  stopDragonRougePolling();
+  currentAccess = null;
+  currentClientTrackingCode = '';
+  localStorage.removeItem('drClientTrackingCodeV1');
+  location.reload();
+}
+
+// ────────────────────────────────────────────── GROUPES & MEMBRES (inchangé)
+function majSelectGroupes() {
+  const selects = document.querySelectorAll('#groupeMembre, #selectGroupeFiltre');
+  selects.forEach(sel => {
+    sel.innerHTML = '<option value="">— Choisir / Tous —</option>';
+    groupes.forEach(g => {
+      const opt = document.createElement('option');
+      opt.value = g.nom;
+      opt.textContent = g.nom;
+      sel.appendChild(opt);
+    });
+  });
+}
+
+async function creerGroupe() {
+  if (!isAdmin()) return;
+  const nom = document.getElementById('nomGroupe').value.trim();
+  if (!nom) {
+    await appAlert("Nom obligatoire");
+    return;
+  }
+  groupes.push({id: Date.now(), nom});
+  saveAll();
+  majSelectGroupes();
+  document.getElementById('nomGroupe').value = '';
+}
+
+async function ajouterMembre() {
+  if (!isAdmin()) return;
+  const nom = document.getElementById('nomMembre').value.trim();
+  const tel = document.getElementById('telMembre').value.trim();
+  const comm = document.getElementById('commentMembre').value.trim();
+  const groupe = document.getElementById('groupeMembre').value;
+  if (!nom || !groupe) {
+    await appAlert("Nom et groupe obligatoires");
+    return;
+  }
+  membres.push({id: Date.now(), nom, tel: tel||'-', commentaire: comm||'-', groupe, statut: 'attente'});
+  saveAll();
+  afficherMembres();
+}
+
+function afficherMembres() {
+  const tbody = document.getElementById('tableMembres');
+  const filtre = document.getElementById('selectGroupeFiltre').value;
+  tbody.innerHTML = '';
+  const filtered = filtre ? membres.filter(m => m.groupe === filtre) : membres;
+  filtered.forEach(m => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${m.nom}</td>
+      <td>${m.tel}</td>
+      <td>${m.commentaire}</td>
+      <td>${m.groupe}</td>
+      <td class="${m.statut==='ok'?'paiement-ok':m.statut==='attente'?'paiement-attente':'paiement-non'}" ${isAdmin() ? `onclick="togglePaiement(${m.id})"` : ''}>
+        ${m.statut.toUpperCase()}
+      </td>
+      <td class="delete" ${isAdmin() ? `onclick="supprimerMembre(${m.id})"` : 'style="display:none;"'}>${isAdmin() ? '×' : ''}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function togglePaiement(id) {
+  if (!isAdmin()) return;
+  const m = membres.find(x => x.id === id);
+  m.statut = m.statut === 'attente' ? 'ok' : m.statut === 'ok' ? 'non' : 'attente';
+  saveAll();
+  afficherMembres();
+}
+
+async function supprimerMembre(id) {
+  if (!isAdmin()) return;
+  if (!await appConfirm("Supprimer ce membre ?")) return;
+  membres = membres.filter(x => x.id !== id);
+  saveAll();
+  afficherMembres();
+}
+
+// ────────────────────────────────────────────── OPÉRATIONS & DEMANDES (inchangé)
+async function envoyerOperation() {
+  const prenom = document.getElementById('prenomDecl').value.trim();
+  const montant = parseFloat(document.getElementById('montantDecl').value);
+  const type = document.getElementById('typeDecl').value;
+  const desc = document.getElementById('descriptionDecl').value.trim();
+  if (!prenom || isNaN(montant) || montant <= 0 || !type || !desc) {
+    await appAlert("Champs obligatoires + montant positif !");
+    return;
+  }
+  const date = new Date().toISOString().slice(0,10);
+  if (isAdmin()) {
+    ops.push({ id: Date.now(), date, qui: prenom + " (resp.)", description: desc, montant: type === "revenus" ? montant : -montant, type });
+    await appAlert("Ajout direct OK");
+  } else {
+    demandes.push({ id: Date.now(), date, prenom, montant, type, description: desc });
+    await appAlert("Demande envoyée");
+  }
+  saveAll();
+  document.querySelectorAll('#declarer input, #declarer select').forEach(el => el.value = '');
+  if (isAdmin()) { afficherOps(); calculerSolde(); }
+  else afficherDemandes();
+}
+
+function afficherOps() {
+  const tbody = document.getElementById('listeOps');
+  tbody.innerHTML = '';
+  ops.forEach(op => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${op.date}</td>
+      <td>${op.qui}</td>
+      <td>${op.description}</td>
+      <td class="${op.montant >= 0 ? 'positive' : 'negative'}">${formatEuro(op.montant)}</td>
+      <td>${op.type}</td>
+      <td class="delete" ${isAdmin() ? `onclick="supprimerOp(${op.id})"` : 'style="display:none;"'}>${isAdmin() ? '×' : ''}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+async function supprimerOp(id) {
+  if (!isAdmin()) return;
+  if (!await appConfirm("Supprimer cette opération ?")) return;
+  ops = ops.filter(o => o.id !== id);
+  saveAll();
+  afficherOps();
+  calculerSolde();
+}
+
+function afficherDemandes() {
+  const tbody = document.getElementById('listeDemandes');
+  tbody.innerHTML = '';
+  demandes.forEach(d => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${d.date}</td>
+      <td>${d.prenom}</td>
+      <td class="${d.type === 'revenus' ? 'positive' : 'negative'}">${formatEuro(d.montant)}</td>
+      <td>${d.type}</td>
+      <td>${d.description}</td>
+      <td style="white-space:nowrap; text-align:center;">
+        <button onclick="validerDemande(${d.id})" style="background:var(--vert-ok); margin-right:8px;">Valider</button>
+        <button onclick="refuserDemande(${d.id})" class="refuser" style="margin-right:8px;">Refuser</button>
+        <span class="delete" onclick="supprimerDemande(${d.id})" title="Supprimer demande">×</span>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function validerDemande(id) {
+  if (!isAdmin()) return;
+  const d = demandes.find(x => x.id === id);
+  if (!d) return;
+  ops.push({ id: Date.now(), date: d.date, qui: d.prenom, description: d.description, montant: d.type === "revenus" ? d.montant : -d.montant, type: d.type });
+  demandes = demandes.filter(x => x.id !== id);
+  saveAll();
+  afficherDemandes();
+  afficherOps();
+  calculerSolde();
+}
+
+async function refuserDemande(id) {
+  if (!isAdmin()) return;
+  if (!await appConfirm("Refuser cette demande ?")) return;
+  demandes = demandes.filter(x => x.id !== id);
+  saveAll();
+  afficherDemandes();
+}
+
+async function supprimerDemande(id) {
+  if (!isAdmin()) return;
+  if (!await appConfirm("Supprimer cette demande définitivement ?")) return;
+  demandes = demandes.filter(x => x.id !== id);
+  saveAll();
+  afficherDemandes();
+}
+
+function calculerSolde() {
+  let solde = ops.reduce((s, o) => s + o.montant, 0);
+  document.getElementById('soldeGlobal').textContent = formatEuro(solde);
+  const mois = new Date().toISOString().slice(0,7);
+  let rev = 0, dep = 0;
+  ops.forEach(o => {
+    if (o.date.startsWith(mois)) {
+      if (o.montant > 0) rev += o.montant;
+      else dep += Math.abs(o.montant);
+    }
+  });
+  document.getElementById('revenus').textContent = formatEuro(rev);
+  document.getElementById('depenses').textContent = formatEuro(dep);
+}
+
+// ────────────────────────────────────────────── BLOC-NOTES
+async function ajouterBlockNote() {
+  const texte = document.getElementById('texteBlockNote').value.trim();
+  const urlImage = document.getElementById('urlImageBlockNote').value.trim();
+  const fileInput = document.getElementById('photosBlockNote');
+  const files = Array.from(fileInput.files);
+  if (!texte) {
+    await appAlert("Le message est obligatoire !");
+    return;
+  }
+
+  const date = new Date().toISOString().slice(0,10);
+  const newNote = { id: Date.now(), date, texte, images: [], urlImages: [], commentaires: [] };
+
+  if (urlImage && urlImage.match(/^https?:\/\/.*\.(jpg|jpeg|png|gif|webp)$/i)) {
+    newNote.urlImages.push(urlImage);
+  } else if (urlImage) {
+    await appAlert("Lien image invalide (doit finir par .jpg .png .gif .webp etc.)");
+    return;
+  }
+
+  if (files.length === 0) {
+    blockNotes.push(newNote);
+    saveAll();
+    afficherBlockNotes();
+    resetBlockNoteForm();
+    return;
+  }
+
+  let loaded = 0;
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      newNote.images.push(e.target.result);
+      loaded++;
+      if (loaded === files.length) {
+        blockNotes.push(newNote);
+        saveAll();
+        afficherBlockNotes();
+        resetBlockNoteForm();
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function resetBlockNoteForm() {
+  document.getElementById('texteBlockNote').value = '';
+  document.getElementById('urlImageBlockNote').value = '';
+  document.getElementById('photosBlockNote').value = '';
+}
+
+function openCommentModal(noteId) {
+  commentModalNoteId = noteId;
+  document.getElementById('commentNom').value = '';
+  document.getElementById('commentPrenom').value = '';
+  document.getElementById('commentReponse').value = '';
+  document.getElementById('commentModalError').textContent = '';
+  document.getElementById('commentModal').classList.remove('hidden');
+  document.getElementById('commentPrenom').focus();
+}
+
+function closeCommentModal() {
+  commentModalNoteId = null;
+  document.getElementById('commentModal').classList.add('hidden');
+}
+
+function submitCommentModal() {
+  if (!commentModalNoteId) return;
+  const prenom = document.getElementById('commentPrenom').value.trim();
+  const nom = document.getElementById('commentNom').value.trim();
+  const texte = document.getElementById('commentReponse').value.trim();
+  const err = document.getElementById('commentModalError');
+
+  if (!prenom || !nom) {
+    err.textContent = "Nom et prénom sont obligatoires.";
+    return;
+  }
+  if (!texte) {
+    err.textContent = "La réponse est obligatoire.";
+    return;
+  }
+  err.textContent = '';
+
+  const note = blockNotes.find(n => n.id === commentModalNoteId);
+  if (!note) {
+    closeCommentModal();
+    return;
+  }
+  if (!Array.isArray(note.commentaires)) {
+    note.commentaires = [];
+  }
+
+  note.commentaires.push({
+    id: Date.now(),
+    date: new Date().toISOString().slice(0,10),
+    prenom,
+    nom,
+    qui: `${prenom} ${nom}`,
+    texte
+  });
+
+  saveAll();
+  afficherBlockNotes();
+  closeCommentModal();
+}
+
+function ajouterCommentaire(noteId) {
+  openCommentModal(noteId);
+}
+
+async function supprimerCommentaire(noteId, commId) {
+  if (!isAdmin()) {
+    await appAlert("Seul le responsable peut supprimer un commentaire.");
+    return;
+  }
+  if (!await appConfirm("Supprimer ce commentaire ?")) return;
+
+  const note = blockNotes.find(n => n.id === noteId);
+  if (!note) return;
+
+  note.commentaires = note.commentaires.filter(c => c.id !== commId);
+
+  saveAll();
+  afficherBlockNotes();
+}
+
+function afficherBlockNotes() {
+  const container = document.getElementById('listeBlockNotes');
+  container.innerHTML = '';
+
+  blockNotes.sort((a,b) => b.id - a.id).forEach(note => {
+    const div = document.createElement('div');
+    div.className = 'note-item';
+
+    let imgHTML = '';
+    if (note.images?.length) imgHTML += note.images.map(src => `<img src="${src}" alt="photo">`).join('');
+    if (note.urlImages?.length) imgHTML += note.urlImages.map(url => `<img src="${url}" alt="image">`).join('');
+    if (imgHTML) imgHTML = '<div class="note-images">' + imgHTML + '</div>';
+
+    let commHTML = '';
+    if (note.commentaires?.length > 0) {
+      commHTML = '<div style="margin-top:16px; padding-left:16px; border-left:3px solid #444;">';
+      commHTML += '<strong style="color:#888; font-size:0.95rem;">Commentaires :</strong><br>';
+      note.commentaires.forEach(c => {
+        commHTML += `
+          <div style="margin:8px 0; font-size:0.95rem;">
+            <small style="color:#aaa;">${c.date} — <strong>${c.qui}</strong></small><br>
+            ${c.texte}
+            ${isAdmin() ? `<span class="delete" onclick="supprimerCommentaire(${note.id}, ${c.id})" title="Supprimer commentaire" style="margin-left:12px; cursor:pointer;">×</span>` : ''}
+          </div>
+        `;
+      });
+      commHTML += '</div>';
+    }
+
+    div.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <strong>${note.date}</strong>
+        ${isAdmin() ? `<span class="delete" onclick="supprimerBlockNote(${note.id})" title="Supprimer note">×</span>` : ''}
+      </div>
+      <p style="white-space:pre-wrap; margin:12px 0;">${note.texte}</p>
+      ${imgHTML}
+      ${commHTML}
+
+      <button onclick="ajouterCommentaire(${note.id})" 
+              style="margin-top:12px; background:#555; font-size:0.9rem; padding:6px 12px; border:1px solid #777; color:#eee; cursor:pointer;">
+        + Répondre / commenter
+      </button>
+    `;
+
+    container.appendChild(div);
+  });
+}
+
+async function supprimerBlockNote(id) {
+  if (!isAdmin()) return;
+  if (!await appConfirm("Supprimer cette note ?")) return;
+  blockNotes = blockNotes.filter(n => n.id !== id);
+  saveAll();
+  afficherBlockNotes();
+}
+
+// ────────────────────────────────────────────── COMMANDES
+
+// Liste des objets avec leurs prix unitaires
+const objetsPredefinis = [
+
+];
+
+// Liste des produits avec leurs prix unitaires
+const produitsPredefinis = [
+
+];
+
+function majChampsObjet() {
+  const objet = document.getElementById('objetCommande').value;
+  const champObjetSpecifique = document.getElementById('champObjetSpecifique');
+  const objetSpecifique = document.getElementById('objetSpecifique');
+  const prixUnitaire = document.getElementById('prixUnitaireCommande');
+  const montantTotal = document.getElementById('montantCommande');
+  
+  // Réinitialiser les champs
+  champObjetSpecifique.style.display = 'none';
+  prixUnitaire.style.display = 'none';
+  prixUnitaire.value = '';
+  montantTotal.value = '';
+  objetSpecifique.innerHTML = '<option value="">— Choisir l\'objet —</option>';
+  
+  if (objet === 'Objets') {
+    // Afficher la liste des objets spécifiques
+    champObjetSpecifique.style.display = 'block';
+    prixUnitaire.style.display = 'block';
+    
+    // Remplir la liste des objets (prédéfinis + produits dynamiques)
+    objetsPredefinis.forEach(obj => {
+      const option = document.createElement('option');
+      option.value = obj.nom;
+      option.textContent = `${obj.nom} (${formatEuro(obj.prix)})`;
+      objetSpecifique.appendChild(option);
+    });
+    
+    // Ajouter les produits dynamiques à la liste des objets
+    produitsDynamiques.forEach(prod => {
+      const option = document.createElement('option');
+      option.value = prod.nom;
+      option.textContent = `${prod.nom} (${formatEuro(prod.prix)})`;
+      objetSpecifique.appendChild(option);
+    });
+  } else if (objet === 'Véhicules') {
+    // Afficher la liste des véhicules
+    champObjetSpecifique.style.display = 'block';
+    prixUnitaire.style.display = 'block';
+    
+    // Remplir la liste des véhicules
+    vehicules.forEach(v => {
+      const option = document.createElement('option');
+      option.value = v.immatriculation;
+      option.textContent = `${v.immatriculation} (${v.marque} ${v.modele})`;
+      objetSpecifique.appendChild(option);
+    });
+  } else if (['Feuille', 'Brique', 'Drogue', 'Arme', 'Autres'].includes(objet)) {
+    // Pour les autres objets, afficher le champ de prix unitaire
+    prixUnitaire.style.display = 'block';
+  }
+}
+
+function calculerMontant() {
+  const objet = document.getElementById('objetCommande').value;
+  const quantite = parseFloat(document.getElementById('quantiteCommande').value) || 0;
+  const prixUnitaire = parseFloat(document.getElementById('prixUnitaireCommande').value) || 0;
+  const montantTotal = document.getElementById('montantCommande');
+  
+  if (quantite > 0 && prixUnitaire > 0) {
+    const total = quantite * prixUnitaire;
+    montantTotal.value = total.toFixed(2);
+  } else {
+    montantTotal.value = '';
+  }
+}
+
+async function creerCommande() {
+  const objet = document.getElementById('objetCommande').value;
+  const pourQui = document.getElementById('pourQuiCommande').value.trim();
+  const quantite = parseInt(document.getElementById('quantiteCommande').value);
+  const montant = parseFloat(document.getElementById('montantCommande').value);
+  
+  // Validation selon le type d'objet
+  if (!objet) {
+    await appAlert("Veuillez choisir un type d'objet !");
+    return;
+  }
+  
+  if (!quantite || quantite < 1) {
+    await appAlert("La quantité doit être d'au moins 1 !");
+    return;
+  }
+  
+  if (!montant || montant <= 0) {
+    await appAlert("Le montant total doit être positif !");
+    return;
+  }
+  
+  // Pour les objets spécifiques, vérifier que l'objet est sélectionné
+  if (objet === 'Objets') {
+    const objetSpecifique = document.getElementById('objetSpecifique').value;
+    if (!objetSpecifique) {
+      await appAlert("Veuillez choisir un objet spécifique !");
+      return;
+    }
+  }
+  
+  // Pour les véhicules, vérifier que le véhicule est sélectionné
+  if (objet === 'Véhicules') {
+    const vehicule = document.getElementById('objetSpecifique').value;
+    if (!vehicule) {
+      await appAlert("Veuillez choisir un véhicule !");
+      return;
+    }
+  }
+  
+  const date = new Date().toISOString().slice(0,10);
+  const suiviCode = generateTrackingCode();
+  
+  // Déterminer le nom complet de l'objet
+  let nomObjet = objet;
+  if (objet === 'Objets') {
+    nomObjet = document.getElementById('objetSpecifique').value;
+  } else if (objet === 'Véhicules') {
+    nomObjet = document.getElementById('objetSpecifique').value;
+  }
+  
+  commandes.push({
+    id: Date.now(),
+    suiviCode,
+    date,
+    objet: nomObjet,
+    pourQui: pourQui || "—",
+    quantite,
+    montant,
+    statut: "préparation",
+    responsable: ""
+  });
+  saveAll();
+  if (isClient()) {
+    currentClientTrackingCode = suiviCode;
+    localStorage.setItem('drClientTrackingCodeV1', currentClientTrackingCode);
+    document.getElementById('suiviCommandeInput').value = currentClientTrackingCode;
+    updateSuiviCommandeInfo();
+  }
+  afficherCommandes();
+  document.querySelectorAll('#commandes input, #commandes select').forEach(el => el.value = '');
+  await appAlert(`Veuillez noter ce numéro de suivi pour suivre votre commande : ${suiviCode}`, "Commande créée");
+}
+
+function changerStatutCommande(id, nouveauStatut) {
+  if (isClient()) return; // client ne peut pas changer le statut
+  const cmd = commandes.find(c => c.id === id);
+  if (cmd) {
+    cmd.statut = nouveauStatut;
+    saveAll();
+    afficherCommandes();
+  }
+}
+
+async function declarerResponsable(id) {
+  if (isClient()) return; // client ne peut pas prendre en charge
+  const qui = await appPrompt("Ton prénom / pseudo (qui prend en charge) :", "Prise en charge");
+  if (!qui || !qui.trim()) return;
+
+  const cmd = commandes.find(c => c.id === id);
+  if (cmd) {
+    if (cmd.responsable && !await appConfirm(`Remplacer ${cmd.responsable} par ${qui.trim()} ?`)) {
+      return;
+    }
+    cmd.responsable = qui.trim();
+    saveAll();
+    afficherCommandes();
+  }
+}
+
+function afficherCommandes() {
+  const tbody = document.getElementById('listeCommandes');
+  tbody.innerHTML = '';
+  updateSuiviCommandeInfo();
+  let list = [...commandes].sort((a,b) => b.id - a.id);
+  if (isClient()) {
+    list = currentClientTrackingCode
+      ? list.filter(cmd => String(cmd.suiviCode || '') === String(currentClientTrackingCode))
+      : [];
+  }
+  list.forEach(cmd => {
+    let statutText = "";
+    let statutClass = "";
+    switch (cmd.statut) {
+      case "préparation": statutText = "Pas encore préparée"; statutClass = "statut-preparation"; break;
+      case "encours":     statutText = "En cours"; statutClass = "statut-encours"; break;
+      case "faite":       statutText = "Commande faite"; statutClass = "statut-faite"; break;
+      default:            statutText = cmd.statut || "?";
+    }
+
+    const respDisplay = cmd.responsable
+      ? cmd.responsable
+      : "(non assigné)";
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${cmd.date}</td>
+      <td><strong>${cmd.suiviCode || '—'}</strong></td>
+      <td>${cmd.objet}</td>
+      <td>${cmd.pourQui}</td>
+      <td>${cmd.quantite}</td>
+      <td class="positive">${formatEuro(cmd.montant)}</td>
+      <td class="${statutClass}">
+        ${isClient() ? statutText : `
+          <select class="statut-select" onchange="changerStatutCommande(${cmd.id}, this.value)">
+            <option value="préparation" ${cmd.statut==='préparation'?'selected':''}>Pas encore préparée</option>
+            <option value="encours"     ${cmd.statut==='encours'?'selected':''}>En cours</option>
+            <option value="faite"       ${cmd.statut==='faite'?'selected':''}>Commande faite</option>
+          </select>
+        `}
+      </td>
+      <td>${isClient() ? respDisplay : `
+        <span class="responsable-cell" onclick="declarerResponsable(${cmd.id})">
+          ${cmd.responsable || '(clique pour prendre en charge)'}
+        </span>
+      `}</td>
+      <td class="delete" ${isAdmin() ? `onclick="supprimerCommande(${cmd.id})"` : 'style="display:none;"'}>${isAdmin() ? '×' : ''}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function generateTrackingCode() {
+  const existing = new Set(commandes.map(c => String(c.suiviCode || '')));
+  let code = '';
+  do {
+    code = String(Math.floor(100000 + Math.random() * 900000));
+  } while (existing.has(code));
+  return code;
+}
+
+function updateSuiviCommandeInfo() {
+  const info = document.getElementById('suiviCommandeInfo');
+  if (!info || !isClient()) return;
+  if (currentClientTrackingCode) {
+    info.textContent = `Suivi actif : ${currentClientTrackingCode}`;
+  } else {
+    info.textContent = "Aucun suivi actif. Saisissez votre numéro de suivi.";
+  }
+}
+
+async function rechercherCommandeSuivi() {
+  if (!isClient()) return;
+  const input = document.getElementById('suiviCommandeInput');
+  const code = (input.value || '').trim();
+  if (!code) {
+    await appAlert("Veuillez saisir un numéro de suivi.");
+    return;
+  }
+  const found = commandes.some(cmd => String(cmd.suiviCode || '') === code);
+  if (!found) {
+    await appAlert("Aucune commande trouvée avec ce numéro de suivi.");
+    return;
+  }
+  currentClientTrackingCode = code;
+  localStorage.setItem('drClientTrackingCodeV1', currentClientTrackingCode);
+  updateSuiviCommandeInfo();
+  afficherCommandes();
+}
+
+function effacerSuiviCommande() {
+  if (!isClient()) return;
+  currentClientTrackingCode = '';
+  localStorage.removeItem('drClientTrackingCodeV1');
+  document.getElementById('suiviCommandeInput').value = '';
+  updateSuiviCommandeInfo();
+  afficherCommandes();
+}
+
+function afficherProduits() {
+  const tbody = document.getElementById('listeProduits');
+  tbody.innerHTML = '';
+  
+  // Afficher les produits prédéfinis
+  produitsPredefinis.forEach(prod => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${prod.nom}</td>
+      <td class="positive">${formatEuro(prod.prix)}</td>
+      <td class="delete" ${isAdmin() ? `onclick="supprimerProduit('${prod.nom}')"` : 'style="display:none;"'}>${isAdmin() ? '×' : ''}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+  
+  // Afficher les produits ajoutés dynamiquement
+  produitsDynamiques.forEach(prod => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${prod.nom}</td>
+      <td class="positive">${formatEuro(prod.prix)}</td>
+      <td class="delete" ${isAdmin() ? `onclick="supprimerProduitDynamique('${prod.nom}')"` : 'style="display:none;"'}>${isAdmin() ? '×' : ''}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+async function ajouterProduit() {
+  if (!isAdmin()) return;
+  const nom = document.getElementById('nomProduit').value.trim();
+  const prix = parseFloat(document.getElementById('prixProduit').value);
+  
+  if (!nom || isNaN(prix) || prix <= 0) {
+    await appAlert("Nom et prix obligatoires + prix positif !");
+    return;
+  }
+  
+  // Vérifier si le produit existe déjà dans les prédéfinis
+  const existe = produitsPredefinis.some(p => p.nom.toLowerCase() === nom.toLowerCase());
+  if (existe) {
+    await appAlert("Ce produit existe déjà dans la liste prédéfinie !");
+    return;
+  }
+  
+  // Vérifier si le produit existe déjà dans les dynamiques
+  const existeDynamique = produitsDynamiques.some(p => p.nom.toLowerCase() === nom.toLowerCase());
+  if (existeDynamique) {
+    await appAlert("Ce produit existe déjà dans la liste des produits ajoutés !");
+    return;
+  }
+  
+  // Ajouter le produit
+  produitsDynamiques.push({ nom, prix });
+  saveAll();
+  
+  // Mettre à jour l'affichage
+  afficherProduits();
+  document.getElementById('nomProduit').value = '';
+  document.getElementById('prixProduit').value = '';
+  await appAlert("Produit ajouté !");
+}
+
+async function supprimerProduit(nom) {
+  if (!isAdmin()) return;
+  if (!await appConfirm("Supprimer ce produit de la liste prédéfinie ?")) return;
+  // Pour les produits prédéfinis, on ne peut pas les supprimer
+  await appAlert("Les produits prédéfinis ne peuvent pas être supprimés.");
+}
+
+async function supprimerProduitDynamique(nom) {
+  if (!isAdmin()) return;
+  if (!await appConfirm("Supprimer ce produit ajouté ?")) return;
+  produitsDynamiques = produitsDynamiques.filter(p => p.nom.toLowerCase() !== nom.toLowerCase());
+  saveAll();
+  afficherProduits();
+  await appAlert("Produit supprimé !");
+}
+
+async function supprimerCommande(id) {
+  if (!isAdmin()) return;
+  if (!await appConfirm("Supprimer cette commande ?")) return;
+  commandes = commandes.filter(c => c.id !== id);
+  saveAll();
+  afficherCommandes();
+}
+
+// ────────────────────────────────────────────── VÉHICULES
+async function ajouterVehicule() {
+  if (!isAdmin()) return;
+  const immat = document.getElementById('immatriculationVehicule').value.trim();
+  const marque = document.getElementById('marqueVehicule').value.trim();
+  const modele = document.getElementById('modeleVehicule').value.trim();
+  const couleur = document.getElementById('couleurVehicule').value.trim();
+  const dispo = document.getElementById('dispoVehicule').value;
+  
+  if (!immat || !marque || !modele || !couleur) {
+    await appAlert("Tous les champs obligatoires doivent être remplis !");
+    return;
+  }
+  
+  // Vérifier si l'immatriculation existe déjà
+  const existe = vehicules.some(v => v.immatriculation.toLowerCase() === immat.toLowerCase());
+  if (existe) {
+    await appAlert("Cette immatriculation existe déjà !");
+    return;
+  }
+  
+  // Ajouter le véhicule
+  vehicules.push({
+    id: Date.now(),
+    immatriculation: immat,
+    marque,
+    modele,
+    couleur,
+    disponibilite: dispo
+  });
+  
+  saveAll();
+  
+  // Mettre à jour l'affichage
+  afficherVehicules();
+  document.querySelectorAll('#vehicules input, #vehicules select').forEach(el => el.value = '');
+  await appAlert("Véhicule ajouté !");
+}
+
+function afficherVehicules() {
+  const tbody = document.getElementById('listeVehicules');
+  tbody.innerHTML = '';
+  
+  vehicules.sort((a,b) => b.id - a.id).forEach(v => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${v.immatriculation}</td>
+      <td>${v.marque}</td>
+      <td>${v.modele}</td>
+      <td>${v.couleur}</td>
+      <td class="${v.disponibilite === 'disponible' ? 'positive' : v.disponibilite === 'indisponible' ? 'negative' : 'paiement-attente'}">${v.disponibilite.toUpperCase()}</td>
+      <td class="delete" ${isAdmin() ? `onclick="supprimerVehicule(${v.id})"` : 'style="display:none;"'}>${isAdmin() ? '×' : ''}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+async function supprimerVehicule(id) {
+  if (!isAdmin()) return;
+  if (!await appConfirm("Supprimer ce véhicule ?")) return;
+  vehicules = vehicules.filter(v => v.id !== id);
+  saveAll();
+  afficherVehicules();
+  await appAlert("Véhicule supprimé !");
+}
+
+document.getElementById('commentModalCancel').onclick = closeCommentModal;
+document.getElementById('commentModalSubmit').onclick = submitCommentModal;
+document.getElementById('commentModal').onclick = (event) => {
+  if (event.target && event.target.id === 'commentModal') {
+    closeCommentModal();
+  }
+};
+
+document.getElementById('appModalCancel').onclick = () => {
+  closeAppModal({ confirmed: false, values: {} });
+};
+document.getElementById('appModalConfirm').onclick = () => {
+  const values = {};
+  let hasError = false;
+  for (const field of appModalFields) {
+    const input = document.getElementById(`appModalField_${field.id}`);
+    const value = (input?.value || '').trim();
+    values[field.id] = value;
+    if (field.required && !value) {
+      hasError = true;
+    }
+  }
+  if (hasError) {
+    document.getElementById('appModalError').textContent = 'Merci de remplir les champs obligatoires.';
+    return;
+  }
+  closeAppModal({ confirmed: true, values });
+};
+document.getElementById('appModal').onclick = (event) => {
+  if (event.target && event.target.id === 'appModal') {
+    closeAppModal({ confirmed: false, values: {} });
+  }
+};
+document.getElementById('appModal').addEventListener('keydown', (event) => {
+  if (event.key === 'Enter') {
+    const active = document.activeElement;
+    const isTextField = active && active.id && active.id.startsWith('appModalField_');
+    if (isTextField) {
+      event.preventDefault();
+      document.getElementById('appModalConfirm').click();
+    }
+  }
+});
+document.getElementById('commentReponse').addEventListener('keydown', (event) => {
+  if (event.key === 'Enter' && (event.ctrlKey || event.metaKey)) {
+    event.preventDefault();
+    submitCommentModal();
+  }
+});
+document.addEventListener('keydown', (event) => {
+  if (event.key !== 'Escape') return;
+  if (!document.getElementById('appModal').classList.contains('hidden')) {
+    closeAppModal({ confirmed: false, values: {} });
+    return;
+  }
+  if (!document.getElementById('commentModal').classList.contains('hidden')) {
+    closeCommentModal();
+  }
+});
+</script>
+</body>
+</html>
